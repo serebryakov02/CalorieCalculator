@@ -2,6 +2,7 @@
 #define DIALOG_H
 
 #include <QDialog>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Dialog; }
@@ -21,6 +22,7 @@ public:
 
 private slots:
     void on_btnCalculate_clicked();
+    void on_chkBoxAdvancedSettings_toggled(bool checked);
 
 private:
     Ui::Dialog *ui;

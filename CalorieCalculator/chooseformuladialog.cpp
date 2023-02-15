@@ -6,14 +6,18 @@ ChooseFormulaDialog::ChooseFormulaDialog(QWidget *parent) :
     ui(new Ui::ChooseFormulaDialog)
 {
     ui->setupUi(this);
-
-    this->setWindowTitle("Formula choice");
-    this->setFixedSize(400, 150);
+    init();
 }
 
 ChooseFormulaDialog::~ChooseFormulaDialog()
 {
     delete ui;
+}
+
+void ChooseFormulaDialog::init()
+{
+    this->setWindowTitle("Formula choice");
+    this->setFixedSize(400, 150);
 }
 
 QString ChooseFormulaDialog::formulaName() const

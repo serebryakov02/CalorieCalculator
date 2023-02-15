@@ -25,6 +25,7 @@ private slots:
 private:
     Ui::ChooseFormulaDialog *ui;
     QString m_formulaName;
+    void init();
 };
 
 #endif // CHOOSEFORMULADIALOG_H

@@ -8,7 +8,6 @@ Dialog::Dialog(QWidget *parent)
     , ui(new Ui::Dialog)
 {
     ui->setupUi(this);
-
     init();
 }
 
@@ -20,7 +19,6 @@ Dialog::~Dialog()
 void Dialog::init()
 {
     this->setWindowTitle("Calorie Calculator");
-    this->setFixedSize(400, 300);
 
     ui->spnBoxAge->setMinimum(15);
     ui->spnBoxAge->setMaximum(80);
@@ -41,6 +39,11 @@ void Dialog::init()
 
     ui->cmbBoxActivityLevel->clear();
     ui->cmbBoxActivityLevel->insertItems(0, m_activityLvls);
+
+    ui->chkBoxAdvancedSettings->setCheckState(Qt::Unchecked);
+    on_chkBoxAdvancedSettings_toggled(Qt::Unchecked);
+
+    ui->radBtnCalories->setChecked(true);
 }
 
 double Dialog::calculateBMR_MifflinStJeor() const
@@ -81,7 +84,14 @@ double Dialog::calculateBMR_HarrisBenedict() const
 
 void Dialog::calculate()
 {
+    if(ui->spnBoxHeight->value() == 0 || ui->spnBoxWeight->value() == 0)
+    {
+        QMessageBox::critical(this, "Error!", "Values should be greater than 0!");
+        return;
+    }
+
     ChooseFormulaDialog* chooseFormulaDialog = new ChooseFormulaDialog(this);
+
     int result = chooseFormulaDialog->exec();
 
     if (result == QDialog::Accepted)
@@ -99,17 +109,42 @@ void Dialog::calculate()
         TDEE *= m_multipliers[index];
 
         ResultDialog* resultDialog = new ResultDialog(this);
-        resultDialog->setText(QString::number(TDEE));
+
+        QString units = ui->radBtnCalories->isChecked() ?
+                    ui->radBtnCalories->text() : ui->radBtnKilojoules->text();
+        resultDialog->addLblTxt(QString(units + "/day").toLower());
+
+        resultDialog->setHeaderUnits(units);
+
         resultDialog->addItem(0, 0, "Basal Metabolic Rate (BMR)");
-        resultDialog->addItem(0, 1, QString::number(BMR));
-        resultDialog->addItem(1, 0, m_activityLvls[0]);
-        resultDialog->addItem(1, 1, QString::number(BMR * m_multipliers[0]));
-        resultDialog->addItem(2, 0, m_activityLvls[1]);
-        resultDialog->addItem(2, 1, QString::number(BMR * m_multipliers[1]));
-        resultDialog->addItem(3, 0, m_activityLvls[2]);
-        resultDialog->addItem(3, 1, QString::number(BMR * m_multipliers[2]));
-        resultDialog->addItem(4, 0, m_activityLvls[3]);
-        resultDialog->addItem(4, 1, QString::number(BMR * m_multipliers[3]));
+
+        if (ui->radBtnCalories->isChecked())
+        {
+            resultDialog->setText(QString::number(TDEE));
+            resultDialog->addItem(0, 1, QString::number(BMR));
+            resultDialog->addItem(1, 0, m_activityLvls[0]);
+            resultDialog->addItem(1, 1, QString::number(BMR * m_multipliers[0]));
+            resultDialog->addItem(2, 0, m_activityLvls[1]);
+            resultDialog->addItem(2, 1, QString::number(BMR * m_multipliers[1]));
+            resultDialog->addItem(3, 0, m_activityLvls[2]);
+            resultDialog->addItem(3, 1, QString::number(BMR * m_multipliers[2]));
+            resultDialog->addItem(4, 0, m_activityLvls[3]);
+            resultDialog->addItem(4, 1, QString::number(BMR * m_multipliers[3]));
+        }
+        else if (ui->radBtnKilojoules->isChecked())
+        {
+            const double kJ = 4.184;
+            resultDialog->setText(QString::number(TDEE * kJ));
+            resultDialog->addItem(0, 1, QString::number(BMR * kJ));
+            resultDialog->addItem(1, 0, m_activityLvls[0]);
+            resultDialog->addItem(1, 1, QString::number(BMR * kJ * m_multipliers[0]));
+            resultDialog->addItem(2, 0, m_activityLvls[1]);
+            resultDialog->addItem(2, 1, QString::number(BMR * kJ * m_multipliers[1]));
+            resultDialog->addItem(3, 0, m_activityLvls[2]);
+            resultDialog->addItem(3, 1, QString::number(BMR * kJ * m_multipliers[2]));
+            resultDialog->addItem(4, 0, m_activityLvls[3]);
+            resultDialog->addItem(4, 1, QString::number(BMR * kJ * m_multipliers[3]));
+        }
 
         resultDialog->exec();
     }
@@ -118,4 +153,18 @@ void Dialog::calculate()
 void Dialog::on_btnCalculate_clicked()
 {
     calculate();
+}
+
+void Dialog::on_chkBoxAdvancedSettings_toggled(bool checked)
+{
+    if (checked)
+    {
+        ui->grpBoxAdvancedSettings->show();
+        this->setFixedSize(319, 364);
+    }
+    else
+    {
+        ui->grpBoxAdvancedSettings->hide();
+        this->setFixedSize(319, 234);
+    }
 }

@@ -27,9 +27,9 @@
       <widget class="QLineEdit" name="txtTDEE"/>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="lblOutput">
        <property name="text">
-        <string>calories/day</string>
+        <string>test</string>
        </property>
       </widget>
      </item>
